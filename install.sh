@@ -92,7 +92,19 @@ case "${ID:-}" in
       gnome-shell-extension-dash-to-dock
     if ! rpm -q google-chrome-stable >/dev/null 2>&1; then
       log "Adding Google Chrome"
-      sudo dnf install -y https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+      # check whether ARCH is x86_64 or aarch64 before downloading Chrome from Google
+      case "$(uname -m)" in
+        aarch64|arm64)
+        sudo dnf install -y https://dl.google.com/linux/direct/google-chrome-stable_current_aarch64.rpm
+        ;;
+        x86_64|amd64)
+        sudo dnf install -y https://dl.google.com/linux/direct/google-chrome-stable_current_x86_64.rpm
+        ;;
+        *)
+        log "Error: Other architecture: $(uname -m) no supported by Chrome">&2
+        exit 1
+        ;;
+        esac
     fi
     if ! rpm -q brave-browser >/dev/null 2>&1; then
       log "Adding Brave"
